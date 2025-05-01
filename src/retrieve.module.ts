@@ -1,8 +1,8 @@
-import fs from 'fs';
-import path from 'path';
-import dotenv from 'dotenv';
-import pkg from '@salesforce/source-deploy-retrieve';
-const { ComponentSet } = pkg;
+import * as fs from 'fs';
+import * as path from 'path';
+import * as dotenv from 'dotenv';
+import * as sdr from '@salesforce/source-deploy-retrieve';
+const { ComponentSet } = sdr;
 import { AuthInfo, Connection } from '@salesforce/core';
 import { execSync } from 'child_process';
 import { fileURLToPath } from 'url';
@@ -12,17 +12,27 @@ dotenv.config();
 const TMP_DIR = path.resolve(process.cwd(), "tmp");
 const UNPACK_DIR = path.join(TMP_DIR, "unpackaged");
 
-export async function setupConnection() {
+export interface RetrieveResult {
+  response: {
+    success: boolean;
+    errorMessage?: string;
+    retrieveTargetDir?: string;
+    [key: string]: any;
+  };
+  [key: string]: any;
+}
+
+export async function setupConnection(): Promise<Connection> {
   const authInfo = await AuthInfo.create({
-    username: process.env.SF_USERNAME,
-    password: process.env.SF_PASSWORD + (process.env.SF_TOKEN || ""),
-    instanceUrl: process.env.SF_LOGIN_URL
-  });
+    username: process.env.SF_USERNAME || '',
+    password: (process.env.SF_PASSWORD || '') + (process.env.SF_TOKEN || ""),
+    instanceUrl: process.env.SF_LOGIN_URL || ''
+  } as any); // Using any here to bypass the typings issue with password
 
   return await Connection.create({ authInfo });
 }
 
-export async function retrieveMetadata() {
+export async function retrieveMetadata(): Promise<RetrieveResult | undefined> {
   try {
     const conn = await setupConnection();
     console.log("✔ Connected to Salesforce");
@@ -52,7 +62,7 @@ export async function retrieveMetadata() {
       manifestPath: 'package.xml',
       apiVersion: process.env.API_VERSION || '64.0',
       forceAddWildcards: true
-    });
+    } as any); // Using any to bypass type issues
     
     console.log(`ComponentSet created with ${components.size} components`);
 
@@ -75,19 +85,19 @@ export async function retrieveMetadata() {
     
     console.log("Retrieve result:", JSON.stringify(result.response, null, 2));
     
-    if (!result.response.success) {
+    if (result.response && !result.response.success) {
       throw new Error(result.response.errorMessage || 'Retrieve failed');
     }
 
     console.log("🎉 Retrieve completed successfully");
     
     // Check for retrievetargetdir property which contains the actual path to the retrieved files
-    const retrieveTargetDir = result.response.retrieveTargetDir || TMP_DIR;
+    const retrieveTargetDir = result.response && result.response.retrieveTargetDir ? result.response.retrieveTargetDir : TMP_DIR;
     console.log(`Retrieve target directory: ${retrieveTargetDir}`);
     
     // List files in output directory
     console.log(`Files in ${TMP_DIR}:`);
-    const listAllFiles = (dir, indent = '') => {
+    const listAllFiles = (dir: string, indent = '') => {
       if (!fs.existsSync(dir)) {
         console.log(`${indent}Directory does not exist: ${dir}`);
         return;
@@ -149,7 +159,7 @@ export async function retrieveMetadata() {
         // List extracted files
         if (fs.existsSync(UNPACK_DIR)) {
           console.log(`Files in ${UNPACK_DIR}:`);
-          const listDir = (dir, indent = '') => {
+          const listDir = (dir: string, indent = '') => {
             const files = fs.readdirSync(dir);
             files.forEach(file => {
               const filePath = path.join(dir, file);
@@ -162,14 +172,14 @@ export async function retrieveMetadata() {
           };
           listDir(UNPACK_DIR);
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error extracting zip file:", error.message);
       }
     }
 
     return result;
 
-  } catch (error) {
+  } catch (error: any) {
     console.error("❌", error.message);
     console.error(error.stack);
     process.exit(1);
@@ -177,8 +187,7 @@ export async function retrieveMetadata() {
 }
 
 // Check if this file is being run directly
-// https://nodejs.org/api/modules.html#modules_accessing_the_main_module
-const isMainModule = process.argv[1] === fileURLToPath(import.meta.url);
+const isMainModule = process.argv[1] === (typeof __filename !== 'undefined' ? __filename : '');
 
 // If this file is being run directly, execute retrieveMetadata
 if (isMainModule) {

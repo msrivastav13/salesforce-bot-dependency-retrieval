@@ -1,6 +1,77 @@
-# Salesforce Metadata Retrieval
+# Salesforce Bot Dependency Retrieval
 
-This project is designed to retrieve metadata from a Salesforce org using the Salesforce Source Deploy & Retrieve module, with a focus on demonstrating the `rootTypesWithDependencies` feature of the Metadata API.
+A TypeScript project to retrieve Salesforce Bot metadata with its dependencies. This project demonstrates the support for the new `rootTypesWithDependencies` parameter in Metadata API.
+
+## Overview
+
+This project uses Salesforce DX tools to retrieve Bot metadata along with all its dependencies from a Salesforce org. It uses the `rootTypesWithDependencies` parameter to ensure that all Bot-related dependencies are included in the retrieval.
+
+## Installation
+
+1. Clone this repository
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Create a `.env` file in the root directory with the following variables:
+
+```
+SF_USERNAME=your_salesforce_username
+SF_PASSWORD=your_salesforce_password
+SF_TOKEN=your_security_token
+SF_LOGIN_URL=https://login.salesforce.com
+API_VERSION=64.0
+```
+
+## Usage
+
+To build the TypeScript project:
+
+```bash
+npm run build
+```
+
+To run the retrieval tool:
+
+```bash
+npm run retrieve
+```
+
+## Development
+
+For development, you can use the watch mode:
+
+```bash
+npm run dev
+```
+
+## Testing
+
+Run the test suite:
+
+```bash
+npm test
+```
+
+## TypeScript Conversion
+
+This project has been converted from JavaScript to TypeScript. The conversion includes:
+
+1. Type definitions for Salesforce-specific APIs
+2. Strong typing for all functions and variables
+3. TypeScript configuration with ES modules support
+4. TypeScript-compatible Jest testing setup
+
+## Project Structure
+
+- `src/` - TypeScript source files
+  - `retrieve.module.ts` - Main module for retrieving Salesforce metadata
+  - `main.ts` - Entry point for the application
+  - `salesforce-types.d.ts` - Type definitions for Salesforce APIs
+- `__tests__/` - Test files
+- `dist/` - Compiled JavaScript (generated)
 
 ## Key Features
 
@@ -46,15 +117,9 @@ The `rootTypesWithDependencies` parameter in the Metadata API allows for retriev
 2. Eliminates the need to explicitly list all Bot-related components in package.xml
 3. Ensures that all required components are retrieved together, maintaining referential integrity
 
+This project serves as a demonstration of the new `rootTypesWithDependencies` functionality introduced in the Metadata API, providing a practical example of how to leverage this feature to simplify metadata retrieval operations.
+
 Currently, this feature is only implemented for the `Bot` metadata type in this project. Future releases may support additional metadata types as the API evolves.
-
-## Project Structure
-
-- `retrieve.js` - Original script that auto-executes metadata retrieval
-- `retrieve.module.js` - Modular version with exported functions for testing
-- `main.js` - Entry point that uses the modular version
-- `__tests__/retrieve.test.js` - Tests for the metadata retrieval functionality
-- `package.xml` - Defines the metadata components to retrieve
 
 ## Testing
 

@@ -2,12 +2,14 @@
   "name": "v64",
   "version": "1.0.0",
   "description": "",
-  "main": "main.js",
+  "main": "dist/main.js",
   "type": "module",
   "scripts": {
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --no-cache",
-    "start": "node main.js",
-    "retrieve": "node retrieve.module.js"
+    "start": "npm run build && node dist/main.js",
+    "retrieve": "npm run build && node dist/retrieve.module.js",
+    "build": "tsc",
+    "dev": "tsc --watch"
   },
   "author": "",
   "license": "ISC",
@@ -17,6 +19,10 @@
   },
   "devDependencies": {
     "jest": "^29.7.0",
-    "@jest/globals": "^29.7.0"
+    "@jest/globals": "^29.7.0",
+    "typescript": "^5.3.3",
+    "ts-jest": "^29.1.1",
+    "@types/node": "^20.11.5",
+    "@types/jest": "^29.5.11"
   }
 }

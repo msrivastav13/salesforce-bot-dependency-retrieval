@@ -1,4 +1,4 @@
-import { jest } from '@jest/globals';
+import { jest, describe, test, expect, beforeEach } from '@jest/globals';
 import fs from 'fs';
 import path from 'path';
 import dotenv from 'dotenv';
@@ -7,7 +7,7 @@ import pkg from '@salesforce/source-deploy-retrieve';
 const { ComponentSet } = pkg;
 
 // Import the module under test
-import { retrieveMetadata, setupConnection } from '../retrieve.module.js';
+import { retrieveMetadata, setupConnection, RetrieveResult } from '../src/retrieve.module.js';
 
 // Mock modules
 jest.mock('fs');
@@ -18,6 +18,9 @@ jest.mock('child_process');
 jest.mock('url', () => ({
   fileURLToPath: jest.fn().mockReturnValue('mocked-file-path')
 }));
+
+// Mock types
+type MockFunction<T extends (...args: any) => any> = jest.Mock<ReturnType<T>, Parameters<T>>;
 
 describe('retrieveMetadata function', () => {
   // Setup common mocks
@@ -40,21 +43,21 @@ describe('retrieveMetadata function', () => {
     jest.resetAllMocks();
     
     // Set up the mocks for individual functions
-    fs.existsSync = jest.fn();
-    fs.mkdirSync = jest.fn();
-    fs.rmSync = jest.fn();
-    fs.readFileSync = jest.fn();
-    fs.readdirSync = jest.fn();
-    fs.statSync = jest.fn();
-    fs.unlinkSync = jest.fn();
-    fs.copyFileSync = jest.fn();
+    (fs.existsSync as any) = jest.fn();
+    (fs.mkdirSync as any) = jest.fn();
+    (fs.rmSync as any) = jest.fn();
+    (fs.readFileSync as any) = jest.fn();
+    (fs.readdirSync as any) = jest.fn();
+    (fs.statSync as any) = jest.fn();
+    (fs.unlinkSync as any) = jest.fn();
+    (fs.copyFileSync as any) = jest.fn();
     
     // Mock AuthInfo and Connection
-    AuthInfo.create = jest.fn().mockResolvedValue({});
-    Connection.create = jest.fn().mockResolvedValue(mockConnection);
+    (AuthInfo.create as any) = jest.fn().mockResolvedValue({});
+    (Connection.create as any) = jest.fn().mockResolvedValue(mockConnection);
     
     // Mock ComponentSet
-    ComponentSet.fromManifest = jest.fn().mockResolvedValue(mockComponentSet);
+    (ComponentSet.fromManifest as any) = jest.fn().mockResolvedValue(mockComponentSet);
     mockComponentSet.retrieve = jest.fn().mockResolvedValue(mockRetrieve);
     
     // Mock console methods
@@ -62,7 +65,7 @@ describe('retrieveMetadata function', () => {
     console.error = jest.fn();
     
     // Mock process.exit
-    process.exit = jest.fn();
+    process.exit = jest.fn() as any;
     
     // Mock environment variables
     process.env = {
@@ -76,15 +79,17 @@ describe('retrieveMetadata function', () => {
 
   test('should connect to Salesforce successfully', async () => {
     // Setup
-    fs.existsSync.mockReturnValue(true);
-    fs.readFileSync.mockReturnValue('<mock-package-xml>');
-    fs.readdirSync.mockReturnValue([]);
-    fs.statSync.mockReturnValue({ isDirectory: () => false, size: 100 });
-    mockRetrieve.pollStatus.mockResolvedValue({
+    (fs.existsSync as any).mockReturnValue(true);
+    (fs.readFileSync as any).mockReturnValue('<mock-package-xml>');
+    (fs.readdirSync as any).mockReturnValue([]);
+    (fs.statSync as any).mockReturnValue({ isDirectory: () => false, size: 100 });
+    
+    const mockResult: Partial<RetrieveResult> = {
       response: {
         success: true
       }
-    });
+    };
+    mockRetrieve.pollStatus.mockResolvedValue(mockResult as any);
     
     // Execute
     await retrieveMetadata();
@@ -101,18 +106,20 @@ describe('retrieveMetadata function', () => {
   
   test('should create tmp directory if it does not exist', async () => {
     // Setup
-    fs.existsSync.mockImplementation((path) => {
-      if (path.includes('tmp')) return false;
-      if (path === 'package.xml') return true;
+    (fs.existsSync as any).mockImplementation((pathParam: string) => {
+      if (pathParam.includes('tmp')) return false;
+      if (pathParam === 'package.xml') return true;
       return false;
     });
-    fs.readFileSync.mockReturnValue('<mock-package-xml>');
-    fs.readdirSync.mockReturnValue([]);
-    mockRetrieve.pollStatus.mockResolvedValue({
+    (fs.readFileSync as any).mockReturnValue('<mock-package-xml>');
+    (fs.readdirSync as any).mockReturnValue([]);
+    
+    const mockResult: Partial<RetrieveResult> = {
       response: {
         success: true
       }
-    });
+    };
+    mockRetrieve.pollStatus.mockResolvedValue(mockResult as any);
     
     // Execute
     await retrieveMetadata();
@@ -124,16 +131,18 @@ describe('retrieveMetadata function', () => {
   
   test('should clean existing unpackaged directory', async () => {
     // Setup
-    fs.existsSync.mockImplementation((path) => {
+    (fs.existsSync as any).mockImplementation(() => {
       return true; // All directories exist
     });
-    fs.readFileSync.mockReturnValue('<mock-package-xml>');
-    fs.readdirSync.mockReturnValue([]);
-    mockRetrieve.pollStatus.mockResolvedValue({
+    (fs.readFileSync as any).mockReturnValue('<mock-package-xml>');
+    (fs.readdirSync as any).mockReturnValue([]);
+    
+    const mockResult: Partial<RetrieveResult> = {
       response: {
         success: true
       }
-    });
+    };
+    mockRetrieve.pollStatus.mockResolvedValue(mockResult as any);
     
     // Execute
     await retrieveMetadata();
@@ -145,9 +154,9 @@ describe('retrieveMetadata function', () => {
   
   test('should throw error if package.xml not found', async () => {
     // Setup
-    fs.existsSync.mockImplementation((path) => {
-      if (path.includes('tmp')) return true;
-      if (path === 'package.xml') return false;
+    (fs.existsSync as any).mockImplementation((pathParam: string) => {
+      if (pathParam.includes('tmp')) return true;
+      if (pathParam === 'package.xml') return false;
       return false;
     });
     
@@ -161,15 +170,17 @@ describe('retrieveMetadata function', () => {
   
   test('should handle successful metadata retrieval', async () => {
     // Setup
-    fs.existsSync.mockReturnValue(true);
-    fs.readFileSync.mockReturnValue('<mock-package-xml>');
-    fs.readdirSync.mockReturnValue([]);
-    fs.statSync.mockReturnValue({ isDirectory: () => false, size: 100 });
-    mockRetrieve.pollStatus.mockResolvedValue({
+    (fs.existsSync as any).mockReturnValue(true);
+    (fs.readFileSync as any).mockReturnValue('<mock-package-xml>');
+    (fs.readdirSync as any).mockReturnValue([]);
+    (fs.statSync as any).mockReturnValue({ isDirectory: () => false, size: 100 });
+    
+    const mockResult: Partial<RetrieveResult> = {
       response: {
         success: true
       }
-    });
+    };
+    mockRetrieve.pollStatus.mockResolvedValue(mockResult as any);
     
     // Execute
     await retrieveMetadata();
@@ -194,15 +205,17 @@ describe('retrieveMetadata function', () => {
   
   test('should include rootTypesWithDependencies parameter in retrieve call', async () => {
     // Setup
-    fs.existsSync.mockReturnValue(true);
-    fs.readFileSync.mockReturnValue('<mock-package-xml>');
-    fs.readdirSync.mockReturnValue([]);
-    fs.statSync.mockReturnValue({ isDirectory: () => false, size: 100 });
-    mockRetrieve.pollStatus.mockResolvedValue({
+    (fs.existsSync as any).mockReturnValue(true);
+    (fs.readFileSync as any).mockReturnValue('<mock-package-xml>');
+    (fs.readdirSync as any).mockReturnValue([]);
+    (fs.statSync as any).mockReturnValue({ isDirectory: () => false, size: 100 });
+    
+    const mockResult: Partial<RetrieveResult> = {
       response: {
         success: true
       }
-    });
+    };
+    mockRetrieve.pollStatus.mockResolvedValue(mockResult as any);
     
     // Execute
     await retrieveMetadata();
@@ -215,7 +228,7 @@ describe('retrieveMetadata function', () => {
     );
     
     // Verify the exact parameter structure
-    const retrieveCallArgs = mockComponentSet.retrieve.mock.calls[0][0];
+    const retrieveCallArgs = mockComponentSet.retrieve.mock.calls[0][0] as any;
     expect(retrieveCallArgs).toHaveProperty('rootTypesWithDependencies');
     expect(Array.isArray(retrieveCallArgs.rootTypesWithDependencies)).toBe(true);
     expect(retrieveCallArgs.rootTypesWithDependencies).toContain('Bot');
@@ -223,14 +236,16 @@ describe('retrieveMetadata function', () => {
   
   test('should handle failed metadata retrieval', async () => {
     // Setup
-    fs.existsSync.mockReturnValue(true);
-    fs.readFileSync.mockReturnValue('<mock-package-xml>');
-    mockRetrieve.pollStatus.mockResolvedValue({
+    (fs.existsSync as any).mockReturnValue(true);
+    (fs.readFileSync as any).mockReturnValue('<mock-package-xml>');
+    
+    const mockResult: Partial<RetrieveResult> = {
       response: {
         success: false,
         errorMessage: 'Test error message'
       }
-    });
+    };
+    mockRetrieve.pollStatus.mockResolvedValue(mockResult as any);
     
     // Execute
     await retrieveMetadata();

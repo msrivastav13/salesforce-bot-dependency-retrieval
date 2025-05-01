@@ -26,6 +26,7 @@ build/Release
 dist/
 build/
 out/
+tmp/
 
 # Cache directories
 .npm/
