@@ -1,0 +1,22 @@
+{
+  "name": "v64",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "type": "module",
+  "scripts": {
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest --no-cache",
+    "start": "node main.js",
+    "retrieve": "node retrieve.module.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@salesforce/source-deploy-retrieve": "^12.19.3",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "@jest/globals": "^29.7.0"
+  }
+}
