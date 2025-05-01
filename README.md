@@ -18,8 +18,8 @@ npm install
 3. Create a `.env` file in the root directory with the following variables:
 
 ```
-SF_USERNAME=your_salesforce_username
-SF_PASSWORD=your_salesforce_password
+SF_USERNAME=your_username@example.com
+SF_PASSWORD=your_password
 SF_TOKEN=your_security_token
 SF_LOGIN_URL=https://login.salesforce.com
 API_VERSION=64.0
@@ -121,4 +121,21 @@ npm test
 
 - The script creates a `tmp` directory in the project root to store retrieved metadata.
 - When running the script, it will unzip any retrieved zip files into a `tmp/unpackaged` directory.
-- If you encounter any error regarding the missing `retrieve` script, make sure your package.json has been updated with the proper scripts section. 
+- If you encounter any error regarding the missing `retrieve` script, make sure your package.json has been updated with the proper scripts section.
+
+# Environment Setup
+
+This project requires a few environment variables to be set in a `.env` file at the root of the project. Create a `.env` file with the following variables:
+
+```
+# Salesforce Authentication
+SF_USERNAME=your_username@example.com
+SF_PASSWORD=your_password
+SF_TOKEN=your_security_token
+SF_LOGIN_URL=https://login.salesforce.com
+
+# API version to use for retrieving metadata
+API_VERSION=64.0
+```
+
+Replace the placeholder values with your actual Salesforce credentials. 

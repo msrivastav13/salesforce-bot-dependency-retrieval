@@ -4,9 +4,5 @@
         <members>Merchant_Support_Agent</members>
         <name>Bot</name>
     </types>
-    <types>
-        <members>Merchant_Support_Agent.v1</members>
-        <name>BotVersion</name>
-    </types>
     <version>64.0</version>
 </Package>
