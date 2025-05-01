@@ -2,12 +2,15 @@ import { retrieveMetadata } from './retrieve.js';
 
 // Execute the retrieveMetadata function
 retrieveMetadata()
-  .then((result) => {
-    if (result && result.response) {
-      console.log('Retrieve completed with result:', result.response.success ? 'SUCCESS' : 'FAILED');
-    }
-  })
-  .catch((err) => {
-    console.error('Error during retrieve:', err);
-    process.exit(1);
-  }); 
+    .then((result) => {
+        if (result && result.response) {
+            console.log(
+                'Retrieve completed with result:',
+                result.response.success ? 'SUCCESS' : 'FAILED'
+            );
+        }
+    })
+    .catch((err) => {
+        console.error('Error during retrieve:', err);
+        process.exit(1);
+    });
