@@ -25,6 +25,8 @@ SF_LOGIN_URL=https://login.salesforce.com
 API_VERSION=64.0
 ```
 
+4. Create a `package.xml` file in the root directory that specifies the metadata you want to retrieve.
+
 ## Usage
 
 To build the TypeScript project:
@@ -38,6 +40,14 @@ To run the retrieval tool:
 ```bash
 npm run retrieve
 ```
+
+Or you can use:
+
+```bash
+npm start
+```
+
+Which will build and then run the retrieve operation.
 
 ## Development
 
@@ -55,23 +65,15 @@ Run the test suite:
 npm test
 ```
 
-## TypeScript Conversion
-
-This project has been converted from JavaScript to TypeScript. The conversion includes:
-
-1. Type definitions for Salesforce-specific APIs
-2. Strong typing for all functions and variables
-3. TypeScript configuration with ES modules support
-4. TypeScript-compatible Jest testing setup
-
 ## Project Structure
 
 - `src/` - TypeScript source files
   - `retrieve.ts` - Main module for retrieving Salesforce metadata
   - `main.ts` - Entry point for the application
-  - `salesforce-types.d.ts` - Type definitions for Salesforce APIs
 - `__tests__/` - Test files
 - `dist/` - Compiled JavaScript (generated)
+- `tmp/` - Directory created for retrieved metadata
+  - `unpackaged/` - Extracted metadata components
 
 ## Key Features
 
@@ -87,28 +89,6 @@ This project has been converted from JavaScript to TypeScript. The conversion in
 - Salesforce credentials
 - Bot/Bot-related metadata in your Salesforce org
 
-## Setup
-
-1. Clone the repository.
-2. Run `npm install` to install dependencies.
-3. Create a `.env` file in the root directory with the following content:
-
-```
-SF_USERNAME=your_salesforce_username
-SF_PASSWORD=your_salesforce_password
-SF_TOKEN=your_salesforce_security_token
-SF_LOGIN_URL=https://login.salesforce.com
-API_VERSION=64.0
-```
-
-4. Create a `package.xml` file in the root directory that specifies the metadata you want to retrieve.
-
-## Available Commands
-
-- `npm run retrieve` - Run the original retrieval script
-- `npm start` - Run the retrieval using the module version
-- `npm test` - Run the test suite
-
 ## About rootTypesWithDependencies
 
 The `rootTypesWithDependencies` parameter in the Metadata API allows for retrieving all dependencies of specified metadata types in a single operation. This project demonstrates this feature specifically for Bot metadata type, where it:
@@ -123,7 +103,13 @@ Currently, this feature is only implemented for the `Bot` metadata type in this 
 
 ## Testing
 
-The tests use Jest, a popular JavaScript testing framework. They mock external dependencies to test the functionality without actually connecting to Salesforce.
+The tests use Jest, a popular JavaScript testing framework. The tests verify key functionality:
+
+1. The inclusion of 'Bot' in the rootTypesWithDependencies parameter
+2. The use of metadata format instead of source format
+3. The explicit request for unzipping
+4. The proper handling of environment variables
+5. The zip file extraction logic
 
 To run the tests:
 
@@ -135,4 +121,4 @@ npm test
 
 - The script creates a `tmp` directory in the project root to store retrieved metadata.
 - When running the script, it will unzip any retrieved zip files into a `tmp/unpackaged` directory.
-- The tests cover the main functionality of connecting to Salesforce, retrieving metadata, and handling various scenarios, including verifying that the `rootTypesWithDependencies` parameter is correctly passed with the 'Bot' value. 
+- If you encounter any error regarding the missing `retrieve` script, make sure your package.json has been updated with the proper scripts section. 
