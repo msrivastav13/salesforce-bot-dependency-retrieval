@@ -1,4 +1,4 @@
-import { retrieveMetadata } from './retrieve.module.js';
+import { retrieveMetadata } from './retrieve.js';
 
 // Execute the retrieveMetadata function
 retrieveMetadata()

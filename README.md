@@ -67,7 +67,7 @@ This project has been converted from JavaScript to TypeScript. The conversion in
 ## Project Structure
 
 - `src/` - TypeScript source files
-  - `retrieve.module.ts` - Main module for retrieving Salesforce metadata
+  - `retrieve.ts` - Main module for retrieving Salesforce metadata
   - `main.ts` - Entry point for the application
   - `salesforce-types.d.ts` - Type definitions for Salesforce APIs
 - `__tests__/` - Test files
